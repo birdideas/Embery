@@ -4,7 +4,7 @@ import requests, dotenv
 
 import models
 
-s = requests.Session()
+s = models.Client()
 logger = logging.getLogger(__name__)
 
 def test_open_pack(url : str):
@@ -87,6 +87,6 @@ if __name__ == "__main__":
     ret = get_my_balances()
     logging.debug(ret.content)
 
-    ret = test_open_pack()
-    logging.debug(ret.content)
+    # ret = test_open_pack()
+    # logging.debug(ret.content)
 

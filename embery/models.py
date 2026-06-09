@@ -1,4 +1,4 @@
-from requests import Response
+from requests import Response, Session
 
 class APIResponse:
     def __init__(self, resp : Response):
@@ -14,4 +14,14 @@ class APIResponse:
 
     def json(self):
         return self._resp.json()
+
+class Client:
+    @property
+    def cookies(self):
+        return self._sess.cookies
+
+    def __init__(self):
+        self._sess = Session()
+        self.get = self._sess.get
+        self.post = self._sess.post
 

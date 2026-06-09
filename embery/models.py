@@ -15,7 +15,7 @@ class APIResponse:
     def json(self):
         return self._resp.json()
 
-class Client:
+class ClientBase:
     @property
     def cookies(self):
         return self._sess.cookies

@@ -2,67 +2,67 @@ import logging, os
 
 import requests, dotenv
 
-import models
+from embery import models
 
-s = models.Client()
 logger = logging.getLogger(__name__)
 
-def test_open_pack(url : str):
-    logging.debug(f"Hitting {url}...")
-    resp = models.APIResponse(s.post(url))
+class Client(models.ClientBase):
+    def test_open_pack(self, url : str):
+        logging.debug(f"Hitting {url}...")
+        resp = models.APIResponse(self.post(url))
 
-    logging.debug(f"Request done. Got code {ret.status_code}")
-    if not (ret.status_code >= 200 and ret.status_code <= 299):
-        logging.critical("Uh oh")
+        logging.debug(f"Request done. Got code {ret.status_code}")
+        if not (ret.status_code >= 200 and ret.status_code <= 299):
+            logging.critical("Uh oh")
 
-    return resp
+        return resp
 
-def get_my_balances():
-    logging.debug("Hitting getMyBalances...")
-    ret = s.get("https://www.new-embers.com/api/users/getMyBalances")
+    def get_my_balances(self):
+        logging.debug("Hitting getMyBalances...")
+        ret = self.get("https://www.new-embers.com/api/users/getMyBalances")
 
-    logging.debug(f"Request done. Got code {ret.status_code}")
-    if not (ret.status_code >= 200 and ret.status_code <= 299):
-        logging.critical("Uh oh")
+        logging.debug(f"Request done. Got code {ret.status_code}")
+        if not (ret.status_code >= 200 and ret.status_code <= 299):
+            logging.critical("Uh oh")
 
-    return ret
+        return ret
 
-def login(url : str):
-    username = os.getenv("EMAIL")
-    password = os.getenv("PASSWORD")
-    password_redacted = '********'
+    def login(self, url : str):
+        username = os.getenv("EMAIL")
+        password = os.getenv("PASSWORD")
+        password_redacted = '********'
 
-    logging.debug("Hitting CSRF endpoint...")
-    csrf_response = models.APIResponse(s.get("https://www.new-embers.com/api/auth/csrf"))
-    csrf_token = csrf_response.json()["csrfToken"]
-    if not csrf_token:
-        raise RuntimeError
-    logging.debug(f"Got CSRF token: {csrf_token}")
+        logging.debug("Hitting CSRF endpoint...")
+        csrf_response = models.APIResponse(self.get("https://www.new-embers.com/api/auth/csrf"))
+        csrf_token = csrf_response.json()["csrfToken"]
+        if not csrf_token:
+            raise RuntimeError
+        logging.debug(f"Got CSRF token: {csrf_token}")
 
-    logging.debug(f"Posting to endpoint: {url}")
-    logging.debug(f"User: {username}  Password: {password_redacted}")
+        logging.debug(f"Posting to endpoint: {url}")
+        logging.debug(f"User: {username}  Password: {password_redacted}")
 
-    logging.debug("Posting now...")
-    ret = models.APIResponse(s.post(
-        url,
+        logging.debug("Posting now...")
+        ret = models.APIResponse(self.post(
+            url,
 
-        data = {
-            "email": username,
-            "password": password,
-            "redirect": "false",
-            "csrfToken": csrf_token,
-            # "callbackUrl": "https://www.new-embers.com/auth/signin",
-            "json": "true",
-        },
-    ))
+            data = {
+                "email": username,
+                "password": password,
+                "redirect": "false",
+                "csrfToken": csrf_token,
+                # "callbackUrl": "https://www.new-embers.com/auth/signin",
+                "json": "true",
+            },
+        ))
 
-    logging.debug(f"Request done. Got code {ret.status_code}")
-    if ret.status_code >= 200 and ret.status_code <= 299:
-        logging.critical("Uh oh")
+        logging.debug(f"Request done. Got code {ret.status_code}")
+        if ret.status_code >= 200 and ret.status_code <= 299:
+            logging.critical("Uh oh")
 
-    logging.debug(s.cookies)
+        logging.debug(self.cookies)
 
-    return ret
+        return ret
 
 if __name__ == "__main__":
     logging.basicConfig(

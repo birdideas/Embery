@@ -16,12 +16,16 @@ class APIResponse:
         return self._resp.json()
 
 class ClientBase:
+    def __init__(self):
+        self._sess = Session()
+
     @property
     def cookies(self):
         return self._sess.cookies
 
-    def __init__(self):
-        self._sess = Session()
-        self.get = self._sess.get
-        self.post = self._sess.post
+    def get(self, *args, **kwargs):
+        return APIResponse(self._sess.get(*args, **kwargs))
+
+    def post(self, *args, **kwargs):
+        return APIResponse(self._sess.post(*args, **kwargs))
 

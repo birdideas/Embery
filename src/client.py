@@ -2,15 +2,27 @@ import logging, os
 
 import requests, dotenv
 
+import models
+
 s = requests.Session()
 logger = logging.getLogger(__name__)
+
+def test_open_pack(url : str):
+    logging.debug(f"Hitting {url}...")
+    resp = models.APIResponse(s.post(url))
+
+    logging.debug(f"Request done. Got code {ret.status_code}")
+    if not (ret.status_code >= 200 and ret.status_code <= 299):
+        logging.critical("Uh oh")
+
+    return resp
 
 def get_my_balances():
     logging.debug("Hitting getMyBalances...")
     ret = s.get("https://www.new-embers.com/api/users/getMyBalances")
 
     logging.debug(f"Request done. Got code {ret.status_code}")
-    if ret.status_code >= 200 and ret.status_code <= 299:
+    if not (ret.status_code >= 200 and ret.status_code <= 299):
         logging.critical("Uh oh")
 
     return ret
@@ -21,7 +33,7 @@ def login(url : str):
     password_redacted = '********'
 
     logging.debug("Hitting CSRF endpoint...")
-    csrf_response = s.get("https://www.new-embers.com/api/auth/csrf")
+    csrf_response = models.APIResponse(s.get("https://www.new-embers.com/api/auth/csrf"))
     csrf_token = csrf_response.json()["csrfToken"]
     if not csrf_token:
         raise RuntimeError
@@ -31,7 +43,7 @@ def login(url : str):
     logging.debug(f"User: {username}  Password: {password_redacted}")
 
     logging.debug("Posting now...")
-    ret = s.post(
+    ret = models.APIResponse(s.post(
         url,
 
         data = {
@@ -42,7 +54,7 @@ def login(url : str):
             # "callbackUrl": "https://www.new-embers.com/auth/signin",
             "json": "true",
         },
-    )
+    ))
 
     logging.debug(f"Request done. Got code {ret.status_code}")
     if ret.status_code >= 200 and ret.status_code <= 299:
@@ -73,5 +85,8 @@ if __name__ == "__main__":
     logging.debug(ret.content)
 
     ret = get_my_balances()
+    logging.debug(ret.content)
+
+    ret = test_open_pack()
     logging.debug(ret.content)
 

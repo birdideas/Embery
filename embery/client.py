@@ -64,29 +64,3 @@ class Client(models.ClientBase):
 
         return ret
 
-if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s %(levelname)s:%(name)s:%(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-
-    logger.info("Loading environment variables")
-    dotenv.load_dotenv()
-
-    if not (os.getenv("EMAIL") and os.getenv("PASSWORD")):
-        logger.critical("Could not load credentials from dotenv!")
-        raise RuntimeError
-
-    base_url = "https://www.new-embers.com/"
-    sess_url = "api/auth/callback/credentials"
-
-    ret = login(base_url + sess_url)
-    logging.debug(ret.content)
-
-    ret = get_my_balances()
-    logging.debug(ret.content)
-
-    # ret = test_open_pack()
-    # logging.debug(ret.content)
-

@@ -8,22 +8,22 @@ logger = logging.getLogger(__name__)
 
 class Client(models.ClientBase):
     def test_open_pack(self, url : str):
-        logging.debug(f"Hitting {url}...")
+        logger.debug(f"Hitting {url}...")
         resp = models.APIResponse(self.post(url))
 
-        logging.debug(f"Request done. Got code {ret.status_code}")
+        logger.debug(f"Request done. Got code {ret.status_code}")
         if not (ret.status_code >= 200 and ret.status_code <= 299):
-            logging.critical("Uh oh")
+            logger.critical("Uh oh")
 
         return resp
 
     def get_my_balances(self):
-        logging.debug("Hitting getMyBalances...")
+        logger.debug("Hitting getMyBalances...")
         ret = self.get("https://www.new-embers.com/api/users/getMyBalances")
 
-        logging.debug(f"Request done. Got code {ret.status_code}")
+        logger.debug(f"Request done. Got code {ret.status_code}")
         if not (ret.status_code >= 200 and ret.status_code <= 299):
-            logging.critical("Uh oh")
+            logger.critical("Uh oh")
 
         return ret
 
@@ -32,17 +32,17 @@ class Client(models.ClientBase):
         password = os.getenv("PASSWORD")
         password_redacted = '********'
 
-        logging.debug("Hitting CSRF endpoint...")
+        logger.debug("Hitting CSRF endpoint...")
         csrf_response = models.APIResponse(self.get("https://www.new-embers.com/api/auth/csrf"))
         csrf_token = csrf_response.json()["csrfToken"]
         if not csrf_token:
             raise RuntimeError
-        logging.debug(f"Got CSRF token: {csrf_token}")
+        logger.debug(f"Got CSRF token: {csrf_token}")
 
-        logging.debug(f"Posting to endpoint: {url}")
-        logging.debug(f"User: {username}  Password: {password_redacted}")
+        logger.debug(f"Posting to endpoint: {url}")
+        logger.debug(f"User: {username}  Password: {password_redacted}")
 
-        logging.debug("Posting now...")
+        logger.debug("Posting now...")
         ret = models.APIResponse(self.post(
             url,
 
@@ -56,11 +56,11 @@ class Client(models.ClientBase):
             },
         ))
 
-        logging.debug(f"Request done. Got code {ret.status_code}")
+        logger.debug(f"Request done. Got code {ret.status_code}")
         if ret.status_code >= 200 and ret.status_code <= 299:
-            logging.critical("Uh oh")
+            logger.critical("Uh oh")
 
-        logging.debug(self.cookies)
+        logger.debug(self.cookies)
 
         return ret
 

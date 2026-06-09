@@ -5,6 +5,16 @@ import requests, dotenv
 s = requests.Session()
 logger = logging.getLogger(__name__)
 
+def get_my_balances():
+    logging.debug("Hitting getMyBalances...")
+    ret = s.get("https://www.new-embers.com/api/users/getMyBalances")
+
+    logging.debug(f"Request done. Got code {ret.status_code}")
+    if ret.status_code >= 200 and ret.status_code <= 299:
+        logging.critical("Uh oh")
+
+    return ret
+
 def login(url : str):
     username = os.getenv("EMAIL")
     password = os.getenv("PASSWORD")
@@ -35,7 +45,7 @@ def login(url : str):
     )
 
     logging.debug(f"Request done. Got code {ret.status_code}")
-    if ret.status_code != 200:
+    if ret.status_code >= 200 and ret.status_code <= 299:
         logging.critical("Uh oh")
 
     logging.debug(s.cookies)
@@ -60,5 +70,8 @@ if __name__ == "__main__":
     sess_url = "api/auth/callback/credentials"
 
     ret = login(base_url + sess_url)
+    logging.debug(ret.content)
+
+    ret = get_my_balances()
     logging.debug(ret.content)
 

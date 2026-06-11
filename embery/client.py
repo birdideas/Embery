@@ -8,8 +8,7 @@ logger = logging.getLogger(__name__)
 
 class Client(models.ClientBase):
     def test_open_pack(self, url : str):
-        logger.debug(f"Hitting {url}...")
-        resp = models.APIResponse(self.post(url))
+        resp = self.post(url)
 
         logger.debug(f"Request done. Got code {ret.status_code}")
         if not (ret.status_code >= 200 and ret.status_code <= 299):
@@ -17,9 +16,13 @@ class Client(models.ClientBase):
 
         return resp
 
+    def get_series(self, series_id):
+        endpoint = f"series/{series_id}/get"
+        return self.get(endpoint)
+
     def get_my_balances(self):
-        logger.debug("Hitting getMyBalances...")
-        ret = self.get("https://www.new-embers.com/api/users/getMyBalances")
+        endpoint = "users/getMyBalances"
+        ret = self.get(endpoint)
 
         logger.debug(f"Request done. Got code {ret.status_code}")
         if not (ret.status_code >= 200 and ret.status_code <= 299):
@@ -28,12 +31,13 @@ class Client(models.ClientBase):
         return ret
 
     def login(self, url : str):
+        endpoint = "auth/csrf"
+
         username = os.getenv("EMAIL")
         password = os.getenv("PASSWORD")
         password_redacted = '********'
 
-        logger.debug("Hitting CSRF endpoint...")
-        csrf_response = models.APIResponse(self.get("https://www.new-embers.com/api/auth/csrf"))
+        csrf_response = self.get(endpoint, strip = True)
         csrf_token = csrf_response.json()["csrfToken"]
         if not csrf_token:
             raise RuntimeError
@@ -43,7 +47,7 @@ class Client(models.ClientBase):
         logger.debug(f"User: {username}  Password: {password_redacted}")
 
         logger.debug("Posting now...")
-        ret = models.APIResponse(self.post(
+        ret = self.post(
             url,
 
             data = {
@@ -54,10 +58,12 @@ class Client(models.ClientBase):
                 # "callbackUrl": "https://www.new-embers.com/auth/signin",
                 "json": "true",
             },
-        ))
+
+            strip = True
+        )
 
         logger.debug(f"Request done. Got code {ret.status_code}")
-        if ret.status_code >= 200 and ret.status_code <= 299:
+        if not (ret.status_code >= 200 and ret.status_code <= 299):
             logger.critical("Uh oh")
 
         logger.debug(self.cookies)
